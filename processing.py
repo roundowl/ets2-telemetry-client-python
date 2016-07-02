@@ -11,3 +11,4 @@ def getTurbocharger(self):
   return self.data.ets2['truck']['gameThrottle'] *\
          self.data.ets2['truck']['oilPressure'] *\
         (self.data.ets2['truck']['engineRpm']*0.001)
+
