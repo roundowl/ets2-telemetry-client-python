@@ -4,8 +4,8 @@ import json
 class telemetry():
   ets2 = {'game': {'connected' : False}}
   running = True
-  interval = 500
-  serverIP = "192.168.0.104"
+  interval = 100
+  serverIP = "127.0.0.1"
   
   def stop(self):
     self.running = False
