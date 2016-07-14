@@ -1,12 +1,14 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import telemetry
+import datetime
 from processing import *
 
 class Application(tk.Frame):
   values = {}
   widgets = {}
   telemetryRunning=False
+  intervalCounter = 0
 
   def __init__(self, master=None):
     tk.Frame.__init__(self, master)
@@ -26,12 +28,14 @@ class Application(tk.Frame):
     #Variables
     self.values['Game connected'] = tk.StringVar()
     self.values['Speed'] = tk.StringVar()
+    self.values['Derivative'] = tk.StringVar()
 
   def processData(self):
     self.data.update()
     if (self.data.connected):
       self.values['Game connected'].set(str(gameConnected(self)))
-      self.values['Speed'].set(str(self.data.ets2['truck']['speed']))
+      self.values['Speed'].set(str(self.data.current['truck']['speed']))
+      self.values['Derivative'].set(str(getSpeedAsDerivative(self)))
 
   def createWidgets(self):
     #Configuration
@@ -52,18 +56,21 @@ class Application(tk.Frame):
     self.data.serverIP = self.serverIP.get()
 
   def updateTelemetry(self):
-    if (self.telemetryRunning):
-      self.processData()
-      if (self.data.connected):
-        if (gameConnected(self)):
-          self.connectedMessage.set("Connected\nDisconnect")
+    if (self.intervalCounter >= (1*self.interval.get())):
+      self.intervalCounter = 0
+      if (self.telemetryRunning):
+        self.processData()
+        if (self.data.connected):
+          if (gameConnected(self)):
+            self.connectedMessage.set("Connected\nDisconnect")
+          else:
+            self.connectedMessage.set("Waiting for game\nDisconnect")
         else:
-          self.connectedMessage.set("Waiting for game\nDisconnect")
+          self.connectedMessage.set("Connecting\nDisconnect")
       else:
-        self.connectedMessage.set("Connecting\nDisconnect")
-    else:
-      self.connectedMessage.set("Disconnected\nConnect")
-    self.after(self.interval.get(), self.updateTelemetry)
+        self.connectedMessage.set("Disconnected\nConnect")
+    self.intervalCounter += 100
+    self.after(100, self.updateTelemetry)
 
 root = tk.Tk()
 app = Application(master=root)
