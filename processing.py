@@ -16,7 +16,11 @@ def getOdometerChange(self): # kilometers
   return self.data.current['truck']['odometer'] - self.data.last['truck']['odometer']
 
 def getFuelChange(self): # liters
-  return self.data.last['truck']['fuel'] - self.data.current['truck']['fuel']
+  diff = self.data.last['truck']['fuel'] - self.data.current['truck']['fuel']
+  if (diff > 0):
+    return diff
+  else:
+    return 0
 
 # Calculated values
 
@@ -31,25 +35,15 @@ def getSpeedAsDerivative(self):
   return speed
 
 def getTurbocharger(self):
-  # roundowl:
-  # self.data.current['truck']['gameThrottle'] *\
-  # self.data.current['truck']['oilPressure'] *\
-  #(self.data.current['truck']['engineRpm']*0.001)
-  # m4rc10w:
-  return  self.data.current['truck']['gameThrottle'] *\
-         (self.data.current['truck']['oilPressure'] * 1.4) *\
-         (self.data.current['truck']['engineRpm']*0.035)
+  self.data.current['truck']['gameThrottle'] *\
+  self.data.current['truck']['oilPressure'] *\
+ (self.data.current['truck']['engineRpm']*0.001)
 
 def getTransportWork(self):
-  return self.data.current['trailer']['mass']/1000 \
-       * getOdometerChange(self) / getFuelChange(self)
-
-def addRunningData(self):
-  telematics.transportWork += getTransportWork(self)
-  telematics.fuelUsed += getFuelChange(self)
-  telematics.distanceTravelled += getOdometerChange(self)
-  telematics.engineRunningTime += 0
-  telematics.engineIdlingTime += 0
+  return self.data.current['trailer']['mass']/1000 * getOdometerChange(self)
 
 def getAverageFuelConsumption(self): # liters per 100 km
-  return (telematics.fuelUsed / telematics.distanceTravelled)*100
+  try:
+    return (getFuelChange() / getOdometerChange())*100
+  except:
+    return 0

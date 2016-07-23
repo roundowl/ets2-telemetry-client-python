@@ -13,6 +13,8 @@ class Application(tk.Frame):
   def __init__(self, master=None):
     tk.Frame.__init__(self, master)
     self.data = telemetry.telemetry()
+    self.telematics = telematics.telematics()
+    self.telematics.data = self.data
     self.assignVariables()
     self.createWidgets()
     self.updateTelemetry()
@@ -27,28 +29,32 @@ class Application(tk.Frame):
     self.serverIP.set("127.0.0.1")
     #Variables
     self.values['Game connected'] = tk.StringVar()
-    self.values['Speed'] = tk.StringVar()
+    self.values['Time'] = tk.StringVar()
     self.values['Derivative'] = tk.StringVar()
 
   def processData(self):
     self.data.update()
     if (self.data.connected):
-      self.values['Game connected'].set(str(gameConnected(self)))
-      self.values['Speed'].set(str(self.data.current['truck']['speed']))
-      self.values['Derivative'].set(str(getSpeedAsDerivative(self)))
+      if (not self.data.current['game']['paused']):
+        self.telematics.updateData()
+        self.values['Game connected'].set(str(gameConnected(self)))
+        self.values['Time'].set(str(self.data.current['game']['time'].strftime("%Y-%m-%dT%H:%M:%SZ")))
+        self.values['Derivative'].set(str(getSpeedAsDerivative(self)))
 
   def createWidgets(self):
     #Configuration
     ttk.Entry(root, textvariable=self.serverIP, width=16).grid(row=0,column=0,sticky='news')
     ttk.Entry(root, textvariable=self.interval, width=6).grid(row=0,column=1,sticky='news')
-    #Button
+    #Buttons
     tk.Button(root, textvariable=self.connectedMessage, justify='center', command=self.connectToServer).\
       grid(row=1,column=0,columnspan=2,sticky='news')
+    tk.Button(root, text='Save to file', justify='center', command=self.telematics.updateFile).\
+      grid(row=2,column=0,columnspan=2,sticky='news')
     #Variables
-    r = 2
+    r = 3
     for name, var in self.values.items():
       ttk.Label(root, text=name, width=15).grid(row=r,column=0)
-      ttk.Label(root, textvariable=self.values[name], width=10).grid(row=r,column=1)
+      ttk.Label(root, textvariable=self.values[name], width=20).grid(row=r,column=1)
       r = r + 1
 
   def connectToServer(self):
@@ -73,5 +79,8 @@ class Application(tk.Frame):
     self.after(100, self.updateTelemetry)
 
 root = tk.Tk()
+global app
 app = Application(master=root)
+root.title("Telemetry App 0.3.1")
+root.focus()
 app.mainloop()

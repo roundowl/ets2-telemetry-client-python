@@ -25,12 +25,7 @@ class telemetry():
       self.deltaUpdate = (datetime.datetime.now() - self.lastUpdateTimestamp) * self.current['game']['timeScale']
       self.last['game']['time'] = self.current['game']['time'] - self.deltaUpdate
       self.lastUpdateTimestamp = datetime.datetime.now()
-
-      #if (self.current['game']['time'] != self.lastIngameTimestamp):
-      #  self.last = copy.deepcopy(self.current)
-      #  self.lastIngameTimestamp = self.last['game']['time']
-      #  #TODO: find a way to keep last minute snapshot, not to fake one
-      #  self.last['game']['time'] -= datetime.timedelta(seconds=60)
+      
       self.connected = True
     except:
       self.connected = False
