@@ -51,19 +51,21 @@ class Application(tk.Frame):
 
   def createWidgets(self):
     #Configuration
-    ttk.Entry(root, textvariable=self.serverIP, width=16).grid(row=0,column=0,sticky='news')
-    ttk.Entry(root, textvariable=self.interval, width=6).grid(row=0,column=1,sticky='news')
+    ttk.Label(root, text='Server IP').grid(row=0, column=0, sticky='news')
+    ttk.Label(root, text='Interval (ms)').grid(row=0,column=1, sticky='news')
+    ttk.Entry(root, textvariable=self.serverIP).grid(row=1,column=0,sticky='news')
+    ttk.Entry(root, textvariable=self.interval).grid(row=1,column=1,sticky='news')
     #Buttons
     tk.Button(root, textvariable=self.connectedMessage, justify='center', command=self.connectToServer).\
-      grid(row=1,column=0,columnspan=2,sticky='news')
+      grid(row=2,column=0,columnspan=2,sticky='news')
     tk.Button(root, text='Open', justify='center', command=self.telematics.openFile).\
-      grid(row=2,column=0,sticky='news')
+      grid(row=3,column=0,sticky='news')
     tk.Button(root, text='Save', justify='center', command=self.telematics.saveFile).\
-      grid(row=2,column=1,sticky='news')
+      grid(row=3,column=1,sticky='news')
     #Variables
     r = 4
     for name, var in self.values.items():
-      ttk.Label(root, text=name, width=15).grid(row=r,column=0)
+      ttk.Label(root, text=name, width=20).grid(row=r,column=0)
       ttk.Label(root, textvariable=self.values[name], width=20).grid(row=r,column=1)
       r = r + 1
 
@@ -91,6 +93,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 app = Application(master=root)
-root.title("Telemetry App 0.4.1")
+root.title("Telemetry App 0.4.2")
 root.focus()
 app.mainloop()

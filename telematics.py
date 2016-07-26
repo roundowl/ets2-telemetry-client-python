@@ -84,6 +84,14 @@ class telematics:
     self.output['totalDistanceDriven'] += processing.getOdometerChange(self)
     if (self.data.current['trailer']['attached']):
       self.output['distanceWithTrailer'] += processing.getOdometerChange(self)
+    if (max([self.data.current['truck']['wearEngine'], self.data.current['truck']['wearTransmission'], \
+             self.data.current['truck']['wearChassis'], self.data.current['truck']['wearCabin'],\
+             self.data.current['truck']['wearWheels']]) > 0.25):
+      self.output['distanceWithWarning'] += processing.getOdometerChange(self)
+    try:
+      self.output['drivingWithWarning'] = (self.output['distanceWithWarning'] / self.output['totalDistanceDriven']) * 100
+    except:
+      pass
     # Fuel
     self.output['fuelUsed'] += processing.getFuelChange(self)
     # Time
@@ -216,7 +224,7 @@ class telematics:
       self.accountList[id] = dict()
     try:
       with open(self.settings['lastFile'].split('.')[0] + '.0.json', mode='r') as file:
-        self.accountList[id]['start'] = self.output['timestamp']
+        self.accountList[id]['start'] = json.loads(file.read())['timestamp']
     except:
       with open(self.settings['lastFile'].split('.')[0] + '.0.json', mode='w') as file:
         self.output['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d<br>%H:%M:%S")

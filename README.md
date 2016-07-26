@@ -6,7 +6,7 @@ Fleet Monitor System helps you identify and act upon the key details needed to i
 
 ## Installation
 - Download and install Funbit's [Telemetry Web Server](https://github.com/Funbit/ets2-telemetry-server). ROFMS works through interacting with Telemetry Web Server's REST API.
-- Download binary archive of this release and extract it.
+- Download binary release archive and extract it.
 
 ## Usage
 - Launch Telemetry Web Server, and either Euro Truck Simulator 2 or American Truck Simulator. For better experience go to Drive mode and assure that Telemetry Web Server gets the information from the truck.
