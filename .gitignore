@@ -1,3 +1,5 @@
 *.py~
 __pycache__
 .vscode
+jsconfig.json
+data

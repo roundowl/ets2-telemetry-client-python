@@ -3,18 +3,25 @@ import tkinter.ttk as ttk
 import telemetry
 import datetime
 from processing import *
+import json
 
 class Application(tk.Frame):
-  values = {}
-  widgets = {}
-  telemetryRunning=False
-  intervalCounter = 0
-
   def __init__(self, master=None):
     tk.Frame.__init__(self, master)
     self.data = telemetry.telemetry()
+    try:
+      with open('settings.json', mode='r') as file:
+        self.settings = json.loads(file.read())
+    except FileNotFoundError:
+      self.settings = {'lastFile':'default.json',
+                       'serverIP':'127.0.0.1'}
+    self.values = dict()
+    self.intervalCounter = 0
     self.telematics = telematics.telematics()
     self.telematics.data = self.data
+    self.telematics.settings = self.settings
+    self.telematics.initFiles()
+    self.telemetryRunning = False
     self.assignVariables()
     self.createWidgets()
     self.updateTelemetry()
@@ -22,24 +29,25 @@ class Application(tk.Frame):
   def assignVariables(self):
     #Config
     self.connectedMessage = tk.StringVar()
-    self.connectedMessage.set("Disconnected\nConnect")
+    self.connectedMessage.set("Initialising\nConnect")
     self.serverIP = tk.StringVar()
     self.interval = tk.IntVar()
     self.interval.set(1000)
-    self.serverIP.set("127.0.0.1")
+    self.serverIP.set(self.settings['serverIP'])
+    self.data.serverIP = self.serverIP.get()
     #Variables
     self.values['Game connected'] = tk.StringVar()
     self.values['Time'] = tk.StringVar()
-    self.values['Derivative'] = tk.StringVar()
+    self.values['Distance'] = tk.StringVar()
 
   def processData(self):
     self.data.update()
     if (self.data.connected):
-      if (not self.data.current['game']['paused']):
+      self.values['Game connected'].set(str(gameConnected(self)))
+      if (not self.data.current['game']['paused'] and gameConnected(self)):
         self.telematics.updateData()
-        self.values['Game connected'].set(str(gameConnected(self)))
         self.values['Time'].set(str(self.data.current['game']['time'].strftime("%Y-%m-%dT%H:%M:%SZ")))
-        self.values['Derivative'].set(str(getSpeedAsDerivative(self)))
+        self.values['Distance'].set(str(self.telematics.output['totalDistanceDriven']))
 
   def createWidgets(self):
     #Configuration
@@ -48,10 +56,12 @@ class Application(tk.Frame):
     #Buttons
     tk.Button(root, textvariable=self.connectedMessage, justify='center', command=self.connectToServer).\
       grid(row=1,column=0,columnspan=2,sticky='news')
-    tk.Button(root, text='Save to file', justify='center', command=self.telematics.updateFile).\
-      grid(row=2,column=0,columnspan=2,sticky='news')
+    tk.Button(root, text='Open', justify='center', command=self.telematics.openFile).\
+      grid(row=2,column=0,sticky='news')
+    tk.Button(root, text='Save', justify='center', command=self.telematics.saveFile).\
+      grid(row=2,column=1,sticky='news')
     #Variables
-    r = 3
+    r = 4
     for name, var in self.values.items():
       ttk.Label(root, text=name, width=15).grid(row=r,column=0)
       ttk.Label(root, textvariable=self.values[name], width=20).grid(row=r,column=1)
@@ -60,6 +70,7 @@ class Application(tk.Frame):
   def connectToServer(self):
     self.telemetryRunning = not self.telemetryRunning
     self.data.serverIP = self.serverIP.get()
+    self.telematics.settings['serverIP'] = self.serverIP.get()
 
   def updateTelemetry(self):
     if (self.intervalCounter >= (1*self.interval.get())):
@@ -74,13 +85,12 @@ class Application(tk.Frame):
         else:
           self.connectedMessage.set("Connecting\nDisconnect")
       else:
-        self.connectedMessage.set("Disconnected\nConnect")
+        self.connectedMessage.set("Ready to connect\nConnect")
     self.intervalCounter += 100
     self.after(100, self.updateTelemetry)
 
 root = tk.Tk()
-global app
 app = Application(master=root)
-root.title("Telemetry App 0.3.1")
+root.title("Telemetry App 0.4.1")
 root.focus()
 app.mainloop()

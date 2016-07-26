@@ -14,9 +14,13 @@ def deltaGameTime(self): # datetime.timedelta object, in-game time
 
 def getOdometerChange(self): # kilometers
   return self.data.current['truck']['odometer'] - self.data.last['truck']['odometer']
+  #TODO: Make it work with quick jobs. It counts new truck as a very changed current truck.
+  #If odometer jumps 10 times the speed*3600*deltaUpdate.total_seconds(), return 0.
+  #Don't know how this affects near-zero speeds.
 
 def getFuelChange(self): # liters
   diff = self.data.last['truck']['fuel'] - self.data.current['truck']['fuel']
+  #TODO: Make it work with quick jobs. It counts new truck as a very changed current truck.
   if (diff > 0):
     return diff
   else:

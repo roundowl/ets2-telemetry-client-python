@@ -1,56 +1,83 @@
 import processing
 import json
 import datetime
+from tkinter import filedialog
 
 class telematics:
   def __init__(self):
     self.data = 0
+    self.settings = dict()
     self.braking = False
     self.speed = 0.0
     self.accelerating = False
-    self.output = {
-    'timestamp' : 0,               ## IRL datetime object
-    
-    #Quality data
-    'averageTransportWork' : 0.0,  ## tonne-km / litre
-    'averageFuelConsumption' : 0,  ## l/100km
-    'idling' : 0,                  ## % of engineRunning
-    'engineOverspeed' : 0,         ## % of engineRunning
-    'speeding' : 0,                ## % of engineRunning
-    'outsideEngineSpeed' : 0,      ## % of engineRunning
-    'brakeAppsPer100km' : 0,       # No. per 100km
-    'harshBrakeAppsPer100km' : 0,  # No. per 100km
-    'harshAccelPer100km' : 0,      # No. per 100km
-    'coasting' : 0,                ## % of distance
-    'drivingWithWarning' : 0,      # % of distance
-    'averageDriverScore' : 0,      # %
-    
-    #Lifetime data
-    'totalDistanceDriven' : 0.0,   ## km
-    'distanceWithTrailer' : 0,     ## km
-    'distanceWithWarning' : 0,     # km
-    'averageSpeed' : 0,            ## km/h
-    'electricRunningTime' : 0.0,   ## hours
-    'engineRunningTime' : 0.0,     ## hours
-    'engineIdlingTime' : 0.0,      ## hours
-    'engineOverspeedTime' : 0.0,   ## hours
-    'engineOutsideRangeTime' : 0.0,## hours
-    'speedingTime' : 0.0,          ## hours
-    'fuelUsed' : 0.0,              ## litres
-    'fuelUsedPerHour' : 0,         ## l/h
-    'averageWeight' : 0,           # tonne
-    'transportWork' : 0,           ## tonne-km
-    'maxVehicleSpeed' : 0,         ## km/h
-    'maxEngineSpeed' : 0,          ## rpm
-    'distanceWithCC' : 0,          ## km
-    'coastingDistance' : 0,        ## km
-    'brakeApps' : 0,               # number
-    'harshBrakeApps' : 0,          # number
-    'harshAccelerations' : 0,      # number
-    }
+
+  def initFiles(self):
+    try:
+      with open(self.settings['lastFile'], mode='r') as file:
+        self.output = json.loads(file.read())
+    except FileNotFoundError:
+      self.output = {
+      'timestamp' : 0,               ## IRL datetime object
+      
+      #Quality data
+      'averageTransportWork' : 0.0,  ## tonne-km / litre
+      'averageFuelConsumption' : 0,  ## l/100km
+      'idling' : 0,                  ## % of engineRunning
+      'engineOverspeed' : 0,         ## % of engineRunning
+      'speeding' : 0,                ## % of engineRunning
+      'outsideEngineSpeed' : 0,      ## % of engineRunning
+      'brakeAppsPer100km' : 0,       ## No. per 100km
+      'harshBrakeAppsPer100km' : 0,  ## No. per 100km
+      'harshAccelPer100km' : 0,      ## No. per 100km
+      'coasting' : 0,                ## % of distance
+      'drivingWithWarning' : 0,      # % of distance
+      'averageDriverScore' : 'N/A',      # %
+      
+      #Lifetime data
+      'totalDistanceDriven' : 0.0,   ## km
+      'distanceWithTrailer' : 0,     ## km
+      'distanceWithWarning' : 'N/A',     # km
+      'averageSpeed' : 0,            ## km/h
+      'electricRunningTime' : 0.0,   ## hours
+      'engineRunningTime' : 0.0,     ## hours
+      'engineIdlingTime' : 0.0,      ## hours
+      'engineOverspeedTime' : 0.0,   ## hours
+      'engineOutsideRangeTime' : 0.0,## hours
+      'speedingTime' : 0.0,          ## hours
+      'fuelUsed' : 0.0,              ## litres
+      'fuelUsedPerHour' : 0,         ## l/h
+      'averageWeight' : 0,           ## tonne
+      'transportWork' : 0,           ## tonne-km
+      'maxVehicleSpeed' : 0,         ## km/h
+      'maxEngineSpeed' : 0,          ## rpm
+      'distanceWithCC' : 0,          ## km
+      'coastingDistance' : 0,        ## km
+      'brakeApps' : 0,               ## number
+      'harshBrakeApps' : 0,          ## number
+      'harshAccelerations' : 0,      ## number
+      }
+    try:
+      with open('./data/accountList.json', mode='r') as file:
+        self.accountList = json.loads(file.read())
+    except FileNotFoundError:
+      self.accountList = dict() # Expects following format.
+      #{ 
+      #  'default' : {
+      #    'id' : 'default',
+      #    'filename' : 'default.json',
+      #    'start' : datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+      #    'stop' : datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+      #    'odometer' : 0,
+      #    'distance' : 0,
+      #    'totalFuel' : 0,
+      #    'averageFuel' : 0,
+      #    'averageSpeed' : 0,
+      #    'rating' : 0,
+      #  }
+      #}
 
   def updateTimestamp(self):
-    self.output['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    self.output['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d<br>%H:%M:%S")
 
   def updateTotals(self):
     # Distance
@@ -89,13 +116,13 @@ class telematics:
       if (processing.getFuelChange(self) > 0):
         self.output['engineIdlingTime'] += self.data.deltaUpdate.total_seconds()/3600
     else:
-      if (self.data.current['truck']['engineRpm'] > 1600 or self.data.current['truck']['engineRpm'] < 900):
+      if ((self.data.current['truck']['engineRpm'] > 1600 or self.data.current['truck']['engineRpm'] < 900) and (self.data.current['truck']['speed'] > 10)):
         self.output['engineOutsideRangeTime'] += self.data.deltaUpdate.total_seconds()/3600
         try:
           self.output['outsideEngineSpeed'] = (self.output['engineOutsideRangeTime'] / self.output['engineRunningTime'])*100
         except:
           pass 
-      if (self.data.current['truck']['speed'] > self.data.current['navigation']['speedLimit']):
+      if (self.data.current['truck']['speed'] > (self.data.current['navigation']['speedLimit'] + 5) and (self.data.current['navigation']['speedLimit'] > 0)):
         self.output['speedingTime'] += self.data.deltaUpdate.total_seconds()/3600
         try:
           self.output['speeding'] = (self.output['speedingTime'] / self.output['engineRunningTime'])*100
@@ -119,7 +146,10 @@ class telematics:
       pass   
 
   def updateSpeeds(self):
-    self.output['averageSpeed'] = self.output['totalDistanceDriven'] / self.output['electricRunningTime']
+    try:
+      self.output['averageSpeed'] = self.output['totalDistanceDriven'] / self.output['electricRunningTime']
+    except:
+      pass
     if (self.data.current['truck']['cruiseControlOn']):
       self.output['distanceWithCC'] += processing.getOdometerChange(self)
     if (self.output['maxVehicleSpeed'] < self.data.current['truck']['speed']):
@@ -163,6 +193,46 @@ class telematics:
     self.updateCounts()
     self.updateTimestamp()
 
-  def updateFile(self):
-    with open('default.txt', 'w') as file:
-      file.write(json.dumps(self.output))
+  def openFile(self):
+    self.settings['lastFile'] = filedialog.askopenfilename(filetypes=[('JSON file', '.json'), ('All files', '*')])
+    try:
+      with open(self.settings['lastFile'], mode='r') as file:
+        self.output = json.loads(file.read())
+    except FileNotFoundError:
+      pass
+
+  def saveFile(self):
+    self.settings['lastFile'] = filedialog.asksaveasfilename(filetypes=[('JSON file', '.json'), ('All files', '*')], initialfile=self.settings['lastFile'])
+    try:
+      with open(self.settings['lastFile'], mode='w') as file:
+        file.write(json.dumps(self.output))
+    except:
+      return
+    with open(self.settings['lastFile'].rsplit('/',1)[0] + '/settings.json', mode='w') as file:
+        file.write(json.dumps(self.settings))
+    id = self.settings['lastFile'].split('.')[0]
+    id = id.rsplit('/',1)[1]
+    if (not (id in self.accountList)):
+      self.accountList[id] = dict()
+    try:
+      with open(self.settings['lastFile'].split('.')[0] + '.0.json', mode='r') as file:
+        self.accountList[id]['start'] = self.output['timestamp']
+    except:
+      with open(self.settings['lastFile'].split('.')[0] + '.0.json', mode='w') as file:
+        self.output['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d<br>%H:%M:%S")
+        file.write(json.dumps(self.output))
+        self.accountList[id]['start'] = self.output['timestamp']
+    self.accountList[id]['id'] = id
+    self.accountList[id]['filename'] = self.settings['lastFile']
+    self.accountList[id]['stop'] = self.output['timestamp']
+    try:
+      self.accountList[id]['odometer'] = self.data.current['truck']['odometer']
+    except:
+      self.accountList[id]['odometer'] = 0
+    self.accountList[id]['distance'] = self.output['totalDistanceDriven']
+    self.accountList[id]['totalFuel'] = self.output['fuelUsed']
+    self.accountList[id]['averageFuel'] = self.output['averageFuelConsumption']
+    self.accountList[id]['averageSpeed'] = self.output['averageSpeed']
+    self.accountList[id]['rating'] = 'N/A' #TODO: Make rating system
+    with open(self.settings['lastFile'].rsplit('/',1)[0] + '/accountList.json', mode='w') as file:
+      file.write(json.dumps(self.accountList))
