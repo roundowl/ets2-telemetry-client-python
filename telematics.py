@@ -31,12 +31,12 @@ class telematics:
       'harshAccelPer100km' : 0,      ## No. per 100km
       'coasting' : 0,                ## % of distance
       'drivingWithWarning' : 0,      # % of distance
-      'averageDriverScore' : 'N/A',      # %
+      'averageDriverScore' : 0,      # %
       
       #Lifetime data
       'totalDistanceDriven' : 0.0,   ## km
       'distanceWithTrailer' : 0,     ## km
-      'distanceWithWarning' : 'N/A',     # km
+      'distanceWithWarning' : 0,     # km
       'averageSpeed' : 0,            ## km/h
       'electricRunningTime' : 0.0,   ## hours
       'engineRunningTime' : 0.0,     ## hours

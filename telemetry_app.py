@@ -42,6 +42,14 @@ class Application(tk.Frame):
 
   def processData(self):
     self.data.update()
+    # "warp" fix below. Not in telemetry.py because of naming issues.
+    # I noticed that while using warp command, derivative speed (distance per time)
+    # becomes bigger than ['truck']['speed'] by warp amount, i.e.
+    # 80kph * "warp 1.5" = 120kph. So I divide one by another and multiply
+    # deltatime by the result, then update last['game']['time'] again.
+    self.data.deltaUpdate *= (getSpeedAsDerivative(self) / getSpeed(self))
+    self.data.last['game']['time'] = self.data.current['game']['time'] - self.data.deltaUpdate
+    # end of warp fix
     if (self.data.connected):
       self.values['Game connected'].set(str(gameConnected(self)))
       if (not self.data.current['game']['paused'] and gameConnected(self)):
@@ -93,6 +101,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 app = Application(master=root)
-root.title("Telemetry App 0.4.2")
+root.title("Telemetry App 0.4.4")
 root.focus()
 app.mainloop()
