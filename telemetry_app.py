@@ -4,16 +4,18 @@ import telemetry
 import datetime
 from processing import *
 import json
+import os
 
 class Application(tk.Frame):
   def __init__(self, master=None):
     tk.Frame.__init__(self, master)
     self.data = telemetry.telemetry()
     try:
-      with open('settings.json', mode='r') as file:
+      with open(os.path.join(os.getcwd(), 'settings.json'), mode='r') as file:
         self.settings = json.loads(file.read())
     except FileNotFoundError:
-      self.settings = {'lastFile':'default.json',
+      self.settings = {'workingDir' : os.getcwd(),
+                       'lastFile':'default.json',
                        'serverIP':'127.0.0.1'}
     self.values = dict()
     self.intervalCounter = 0
@@ -47,12 +49,21 @@ class Application(tk.Frame):
     # becomes bigger than ['truck']['speed'] by warp amount, i.e.
     # 80kph * "warp 1.5" = 120kph. So I divide one by another and multiply
     # deltatime by the result, then update last['game']['time'] again.
-    self.data.deltaUpdate *= (getSpeedAsDerivative(self) / getSpeed(self))
-    self.data.last['game']['time'] = self.data.current['game']['time'] - self.data.deltaUpdate
+    try:
+      self.data.deltaUpdate *= (getSpeedAsDerivative(self) / getSpeed(self))
+      self.data.last['game']['time'] = self.data.current['game']['time'] - self.data.deltaUpdate
+    except:
+      self.data.deltaUpdate = (datetime.datetime.now() - self.data.lastUpdateTimestamp) * self.data.current['game']['timeScale']
     # end of warp fix
     if (self.data.connected):
       self.values['Game connected'].set(str(gameConnected(self)))
       if (not self.data.current['game']['paused'] and gameConnected(self)):
+        # Fix for the first frames of telemetry for a new truck.
+        # It used to jump from 0 or previous odometer to new odometer (same for fuel),
+        # and that counts as a legit movement. This return should fix (drop) that.
+        if (getOdometerChange(self) > (self.data.current['truck']['speed']*1.2 + 5)):
+          return
+        # end of odometer fix
         self.telematics.updateData()
         self.values['Time'].set(str(self.data.current['game']['time'].strftime("%Y-%m-%dT%H:%M:%SZ")))
         self.values['Distance'].set(str(self.telematics.output['totalDistanceDriven']))
@@ -83,7 +94,7 @@ class Application(tk.Frame):
     self.telematics.settings['serverIP'] = self.serverIP.get()
 
   def updateTelemetry(self):
-    if (self.intervalCounter >= (1*self.interval.get())):
+    if (self.intervalCounter >= (1*self.interval.get())): #FIXME: Dafuq does the 1* mean? Integerifying?
       self.intervalCounter = 0
       if (self.telemetryRunning):
         self.processData()
@@ -101,6 +112,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 app = Application(master=root)
-root.title("Telemetry App 0.4.4")
+root.title("Telemetry App 0.5.0")
 root.focus()
 app.mainloop()

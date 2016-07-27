@@ -12,12 +12,20 @@
             th {
                 border-bottom: 1px solid #ddd;
             }
+            .header img {
+                width: 100%;
+            }
+            .header {
+                width: 100%;
+                background: #eee;
+                margin: 0 auto;
+            }
         </style>
     </head>
     <body style='width:1024px; display: table-cell; vertical-align: middle; background-color: #eee; border: 1px solid black'>
-        <header>
-            <img style="align:middle" src="http://www.freewebheaders.com/wordpress/wp-content/gallery/trucks/light-green-super-heavy-duty-truck-header.jpg"></img>
-        </header>
+        <div class="header">
+            <img style="align:middle" src="./data/header.jpg"></img>
+        </div>
         <div id='truckList' style='height:auto'>
             <script>displayAccounts()</script>            
         </div>
