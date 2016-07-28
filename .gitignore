@@ -2,7 +2,6 @@
 *.json
 __pycache__
 .vscode
-data
 compile.bat
 *.spec
 build

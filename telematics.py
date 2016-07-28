@@ -216,6 +216,9 @@ class telematics:
     self.settings['lastFile'] = filedialog.asksaveasfilename(filetypes=[('JSON file', '.json'), ('All files', '*')], initialfile=self.settings['lastFile'])
     id = os.path.basename(self.settings['lastFile'])
     id = id.split('.')[0]
+    # Return if file name was not chosen (user closed the dialog)
+    if (len(id) < 1):
+      return
     with open(os.path.join(os.getcwd(), 'settings.json'), mode='w') as file:
       file.write(json.dumps(self.settings))
     try:

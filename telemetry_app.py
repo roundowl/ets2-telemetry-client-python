@@ -40,7 +40,7 @@ class Application(tk.Frame):
     #Variables
     self.values['Game connected'] = tk.StringVar()
     self.values['Time'] = tk.StringVar()
-    self.values['Distance'] = tk.StringVar()
+    self.values['Scale'] = tk.StringVar()
 
   def processData(self):
     self.data.update()
@@ -49,11 +49,9 @@ class Application(tk.Frame):
     # becomes bigger than ['truck']['speed'] by warp amount, i.e.
     # 80kph * "warp 1.5" = 120kph. So I divide one by another and multiply
     # deltatime by the result, then update last['game']['time'] again.
-    try:
-      self.data.deltaUpdate *= (getSpeedAsDerivative(self) / getSpeed(self))
+    if (self.data.current['truck']['speed'] > 5):
+      self.data.deltaUpdate *= (getSpeedAsDerivative(self) / self.data.current['truck']['speed'])
       self.data.last['game']['time'] = self.data.current['game']['time'] - self.data.deltaUpdate
-    except:
-      self.data.deltaUpdate = (datetime.datetime.now() - self.data.lastUpdateTimestamp) * self.data.current['game']['timeScale']
     # end of warp fix
     if (self.data.connected):
       self.values['Game connected'].set(str(gameConnected(self)))
@@ -61,12 +59,12 @@ class Application(tk.Frame):
         # Fix for the first frames of telemetry for a new truck.
         # It used to jump from 0 or previous odometer to new odometer (same for fuel),
         # and that counts as a legit movement. This return should fix (drop) that.
-        if (getOdometerChange(self) > (self.data.current['truck']['speed']*1.2 + 5)):
+        if (getOdometerChange(self) > (abs(self.data.current['truck']['speed']*1.2) + 5)):
           return
         # end of odometer fix
         self.telematics.updateData()
         self.values['Time'].set(str(self.data.current['game']['time'].strftime("%Y-%m-%dT%H:%M:%SZ")))
-        self.values['Distance'].set(str(self.telematics.output['totalDistanceDriven']))
+        self.values['Scale'].set(str(self.data.deltaUpdate.total_seconds()))
 
   def createWidgets(self):
     #Configuration
@@ -112,6 +110,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 app = Application(master=root)
-root.title("Telemetry App 0.5.0")
+root.title("Telemetry App 0.5.1")
 root.focus()
 app.mainloop()

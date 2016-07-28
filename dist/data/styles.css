@@ -1,0 +1,35 @@
+html {
+    background-color: #444; /* Outer bg color */
+    display: table;
+    margin: auto;
+}
+body {
+    width:1024px;
+    display: table-cell;
+    vertical-align: middle;
+    border: 1px solid black;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+    color: #333;
+    background-color: #eee; /* Inner bg color, visible in footer */
+}
+th {
+    border-bottom: 1px solid #ddd;
+    background-color: #eee; /* Table title bg color */
+}
+.header img {
+    width: 100%;
+}
+.header {
+    width: 100%;
+    background: #eee;
+    margin: 0 auto;
+}
+.accounts {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #eee; /* Odd lines bg color */
+}
+tr.accounts:nth-child(4n) {
+    background-color: #ddd; /* even lines bg color */
+}

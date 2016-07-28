@@ -4,12 +4,12 @@ function displayAccounts() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       var jsonResponse = JSON.parse(xhttp.response);
       var accountTable;
-      accountTable = '<table style="border-collapse: collapse; width:100%;"><style scoped>tr:nth-child(4n) {background-color: #ddd}</style><tr><th>Vehicle</th><th>Start</th><th>Stop</th><th>Odometer</th>';
+      accountTable = '<table class="accounts"><tr><th>Vehicle</th><th>Start</th><th>Stop</th><th>Odometer</th>';
       accountTable +='<th>Distance<br>(km)</th><th>Total fuel<br>consumption<br>(litres)</th>';
       accountTable +='<th>Average fuel<br>consumption<br>(l/100 km)</th><th>Average speed<br>(km/h)</th>';
       accountTable +='<th>Rating</th></tr>';
       for (var key in jsonResponse) {
-        accountTable += '<tr onclick="displayData(\'' + jsonResponse[key]['id'] + '\')">';
+        accountTable += '<tr onclick="displayData(\'' + jsonResponse[key]['id'] + '\')" class="accounts">';
         accountTable += '<td>' + jsonResponse[key]['id'] + '</td>';
         accountTable += '<td>' + jsonResponse[key]['start'] + '</td>';
         accountTable += '<td>' + jsonResponse[key]['stop'] + '</td>';
