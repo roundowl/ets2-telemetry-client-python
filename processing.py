@@ -16,7 +16,11 @@ def getOdometerChange(self): # kilometers
   return abs(self.data.current['truck']['odometer'] - self.data.last['truck']['odometer'])
 
 def getFuelChange(self): # liters
-  return abs(self.data.last['truck']['fuel'] - self.data.current['truck']['fuel'])
+  diff = self.data.last['truck']['fuel'] - self.data.current['truck']['fuel']
+  if (diff > 0):
+    return diff
+  else:
+    return 0
 
 # Calculated values
 

@@ -110,6 +110,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 app = Application(master=root)
-root.title("Telemetry App 0.5.1")
+root.title("Telemetry App 0.5.2")
 root.focus()
 app.mainloop()
