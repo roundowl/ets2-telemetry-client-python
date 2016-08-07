@@ -5,6 +5,7 @@ import datetime
 from processing import *
 import json
 import os
+import tracking
 
 class Application(tk.Frame):
   def __init__(self, master=None):
@@ -49,7 +50,7 @@ class Application(tk.Frame):
     # becomes bigger than ['truck']['speed'] by warp amount, i.e.
     # 80kph * "warp 1.5" = 120kph. So I divide one by another and multiply
     # deltatime by the result, then update last['game']['time'] again.
-    if (self.data.current['truck']['speed'] > 5):
+    if (self.data.current['truck']['speed'] > 10):
       self.data.deltaUpdate *= (getSpeedAsDerivative(self) / self.data.current['truck']['speed'])
       self.data.last['game']['time'] = self.data.current['game']['time'] - self.data.deltaUpdate
     # end of warp fix
@@ -110,6 +111,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 app = Application(master=root)
-root.title("Telemetry App 0.5.2")
+root.title("Telemetry App 0.6.0")
 root.focus()
 app.mainloop()

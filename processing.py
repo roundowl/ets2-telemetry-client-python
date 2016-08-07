@@ -13,10 +13,12 @@ def deltaGameTime(self): # datetime.timedelta object, in-game time
   return self.data.current['game']['time'] - self.data.last['game']['time']
 
 def getOdometerChange(self): # kilometers
-  return abs(self.data.current['truck']['odometer'] - self.data.last['truck']['odometer'])
+  return self.data.current['truck']['odometer'] - self.data.last['truck']['odometer']
 
 def getFuelChange(self): # liters
   diff = self.data.last['truck']['fuel'] - self.data.current['truck']['fuel']
+  if ((self.data.last['truck']['gameThrottle'] < 0.1) and (self.data.current['truck']['gameThrottle'] < 0.1) and (abs(diff) > 5)):
+    return 0
   if (diff > 0):
     return diff
   else:

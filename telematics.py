@@ -3,6 +3,7 @@ import json
 import datetime
 from tkinter import filedialog
 import os
+import tracking
 
 # TODO: Refactor this module so that try-except is used once per divisor value.
 # Probably by making one function to count all relative values.
@@ -14,6 +15,8 @@ class telematics:
     self.braking = False
     self.speed = 0.0
     self.accelerating = False
+    self.tracking = tracking.tracking()
+    self.tracking.data = self.data
 
   def initFiles(self):
     self.output = {
@@ -194,6 +197,14 @@ class telematics:
     except:
       pass
 
+  def updatePosition(self):
+    id = os.path.basename(self.settings['lastFile'])
+    id = id.split('.')[0]
+    self.tracking.id = id
+    self.tracking.x = self.data.current['truck']['placement']['x']
+    self.tracking.y = self.data.current['truck']['placement']['z']
+    self.tracking.upload()
+
   def updateData(self):
     self.updateTotals()
     self.updateTransportWork()
@@ -203,6 +214,7 @@ class telematics:
     self.updateSpeeds()
     self.updateCounts()
     self.updateTimestamp()
+    self.updatePosition()
 
   def openFile(self):
     self.settings['lastFile'] = filedialog.askopenfilename(filetypes=[('JSON file', '.json'), ('All files', '*')])
