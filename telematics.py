@@ -60,10 +60,10 @@ class telematics:
     'harshAccelerations' : 0,      ## number
     }
     try:
-      with open(os.path.join(os.getcwd(), 'data', 'accountList.json'), mode='r') as file:
-        self.accountList = json.loads(file.read())
+      with open(os.path.join(os.getcwd(), 'data', 'accountlist.json'), mode='r') as file:
+        self.accountlist = json.loads(file.read())
     except FileNotFoundError:
-      self.accountList = dict() # Expects following format.
+      self.accountlist = dict() # Expects following format.
       #{ 
       #  'default' : {
       #    'id' : 'default',
@@ -238,27 +238,27 @@ class telematics:
         file.write(json.dumps(self.output))
     except:
       return
-    if (not (id in self.accountList)):
-      self.accountList[id] = dict()
+    if (not (id in self.accountlist)):
+      self.accountlist[id] = dict()
     try:
       with open(os.path.join(os.getcwd(), 'data', (id + '.0.json')), mode='r') as file:
-        self.accountList[id]['start'] = json.loads(file.read())['timestamp']
+        self.accountlist[id]['start'] = json.loads(file.read())['timestamp']
     except:
       with open(os.path.join(os.getcwd(), 'data', (id + '.0.json')), mode='w') as file:
         self.output['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d<br>%H:%M:%S")
         file.write(json.dumps(self.output))
-        self.accountList[id]['start'] = self.output['timestamp']
-    self.accountList[id]['id'] = id
-    self.accountList[id]['filename'] = self.settings['lastFile']
-    self.accountList[id]['stop'] = self.output['timestamp']
+        self.accountlist[id]['start'] = self.output['timestamp']
+    self.accountlist[id]['id'] = id
+    self.accountlist[id]['filename'] = self.settings['lastFile']
+    self.accountlist[id]['stop'] = self.output['timestamp']
     try:
-      self.accountList[id]['odometer'] = self.data.current['truck']['odometer']
+      self.accountlist[id]['odometer'] = self.data.current['truck']['odometer']
     except:
-      self.accountList[id]['odometer'] = 0
-    self.accountList[id]['distance'] = self.output['totalDistanceDriven']
-    self.accountList[id]['totalFuel'] = self.output['fuelUsed']
-    self.accountList[id]['averageFuel'] = self.output['averageFuelConsumption']
-    self.accountList[id]['averageSpeed'] = self.output['averageSpeed']
-    self.accountList[id]['rating'] = 'N/A' #TODO: Make rating system
+      self.accountlist[id]['odometer'] = 0
+    self.accountlist[id]['distance'] = self.output['totalDistanceDriven']
+    self.accountlist[id]['totalFuel'] = self.output['fuelUsed']
+    self.accountlist[id]['averageFuel'] = self.output['averageFuelConsumption']
+    self.accountlist[id]['averageSpeed'] = self.output['averageSpeed']
+    self.accountlist[id]['rating'] = 'N/A' #TODO: Make rating system
     with open(os.path.join(os.getcwd(), 'data', ('accountlist.json')), mode='w') as file:
-      file.write(json.dumps(self.accountList))
+      file.write(json.dumps(self.accountlist))

@@ -25,7 +25,7 @@ function displayAccounts() {
       document.getElementById('truckList').innerHTML = accountTable;
     }
   };
-  xhttp.open("GET", './data/accountList.json?preventCache='+new Date(), true);
+  xhttp.open("GET", './data/accountlist.json?preventCache='+new Date(), true);
   xhttp.send();
 }
 
