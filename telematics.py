@@ -234,17 +234,17 @@ class telematics:
     with open(os.path.join(os.getcwd(), 'settings.json'), mode='w') as file:
       file.write(json.dumps(self.settings))
     try:
-      with open(os.path.join(os.getcwd(), 'data', (id + '.json')), mode='w') as file:
+      with open(os.path.join(os.getcwd(), 'data', (str(id).lower() + '.json')), mode='w') as file:
         file.write(json.dumps(self.output))
     except:
       return
     if (not (id in self.accountlist)):
       self.accountlist[id] = dict()
     try:
-      with open(os.path.join(os.getcwd(), 'data', (id + '.0.json')), mode='r') as file:
+      with open(os.path.join(os.getcwd(), 'data', (str(id).lower() + '.0.json')), mode='r') as file:
         self.accountlist[id]['start'] = json.loads(file.read())['timestamp']
     except:
-      with open(os.path.join(os.getcwd(), 'data', (id + '.0.json')), mode='w') as file:
+      with open(os.path.join(os.getcwd(), 'data', (str(id).lower() + '.0.json')), mode='w') as file:
         self.output['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d<br>%H:%M:%S")
         file.write(json.dumps(self.output))
         self.accountlist[id]['start'] = self.output['timestamp']
