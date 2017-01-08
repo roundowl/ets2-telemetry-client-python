@@ -5,7 +5,6 @@ import datetime
 from processing import *
 import json
 import os
-import tracking
 
 class Application(tk.Frame):
   def __init__(self, master=None):
